@@ -1,7 +1,12 @@
 Usei o Mysql 
 nome do Banco api_compare_carro
 
-urls a serem usadas, usei o postman
+Usei o Eclipse para criar a aplicação, O Maven, o Spring Boot
+
+PARA RODAR A APLICAÇÃO BASTA FAZER O CLONE DA MESMA. NO PACOTE br.com.APICarros CLICAR COM O BOTÃO DIREITO DO MOUSE EM
+ApiCarrosApplication.java. NA JANELA QUE ABRIR IR ATÉ RUN AS CLICAR EM Java Application.
+
+urls a serem usadas, usei o postman para testar a aplicação
 
 lista todos os carros
 http://localhost:8080/carros/
