@@ -1,0 +1,63 @@
+urls a serem usadas, usei o postman
+
+lista todos os carros
+http://localhost:8080/carros/
+
+lista os tipo_veiculo
+http://localhost:8080/carros/tipos
+
+lista as marcas
+http://localhost:8080/carros/tipos/1
+
+lista os modelos
+http://localhost:8080/carros/tipos/1/Fiat
+
+lista os anos dos modelos
+http://localhost:8080/carros/tipos/1/Fiat/anos
+
+mostra o valor que corresponde ao um veículo com os valores obtidos com as outras chamadas
+http://localhost:8080/carros/tipos/1/Fiat/2018
+
+devolve os carros que atendem as pesquisas realizadas anteriormente, com o maior valor e o menor
+http://localhost:8080/carros/comparativo
+
+inseri um usuário
+http://localhost:8080/users/
+enviando um JSON exemplo abaixo
+{
+    "nome":"Maria de Souza",
+    "email":"maria@email.com"
+}
+
+
+salva favoritos de um usuário
+http://localhost:8080/favoritos
+exemplo JSON
+{
+    
+       "carro": {
+        "id": 2,
+        "valor": 91047.00,
+        "marca": "VW - VolksWagen",
+        "modelo": "AMAROK High.CD 2.0 16V TDI 4x4 Dies. Aut",
+        "anoModelo": 2018,
+        "combustivel": "diesel",
+        "codigoFipe": "005340-6",
+        "mesReferencia": "janeiro de 2020 ",
+        "tipoVeiculo": 1,
+        "siglaCombustivel": "D"
+    },
+    "user" :{
+        "id": 12,
+        "nome":"maria de Souza",
+        "email":"maria@email.com"
+    }
+}
+
+devolve os favoritos de um usuario
+http://localhost:8080/favoritos/4
+
+deleta um favorito, manda-se o id do favorito
+http://localhost:8080/favoritos/7
+
+
