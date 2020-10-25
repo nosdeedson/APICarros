@@ -6,6 +6,7 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.EntityManager;
 import javax.websocket.server.PathParam;
 
 import org.springframework.beans.BeanUtils;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.APICarros.model.Carro;
 import br.com.APICarros.repository.Carros;
+import br.com.APICarros.service.NativeScriptService;
 
 
 
@@ -33,6 +35,9 @@ public class CarrosResource {
 	
 	@Autowired
 	private Carros carros;
+	
+	@Autowired
+	private NativeScriptService nss = new NativeScriptService();
 	
 	@RequestMapping(method = RequestMethod.POST, value = "/send")
 	public Carro save(@RequestBody Carro carro){
@@ -63,14 +68,9 @@ public class CarrosResource {
 		List<Carro> cars = new ArrayList<Carro>();
 		List<String> brandCars = new ArrayList<String>();
 		
-		cars = carros.findAll();
+		brandCars  = nss.tiposCarros("select c.marca from Carro c where c.tipoVeiculo= :tipoVeiculo" , tipoVeiculo);
 		
-		for (Carro carro : cars) {
-			if( carro.getTipoVeiculo() == tipoVeiculo)
-				brandCars.add(carro.getMarca());
-		}
-		
-		return brandCars;
+		return brandCars ;
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, value = "tipos/{tipoVeiculo}/{marca}")
@@ -79,14 +79,9 @@ public class CarrosResource {
 		List<Carro> cars = new ArrayList<Carro>();
 		List<String> modelCars = new ArrayList<String>();
 		
-		cars = carros.findAll();
+		String sql = "select modelo from Carro  where marca= :marca and tipoVeiculo= :tipoVeiculo";
 		
-		for (Carro carro : cars) {
-			if ( carro.getMarca().equals(marca) && carro.getTipoVeiculo() == tipoVeiculo) {
-				
-				modelCars.add(carro.getModelo());
-			}
-		}
+		modelCars = nss.modelos(sql, tipoVeiculo, marca);
 		
 		return modelCars;
 	}
@@ -95,60 +90,49 @@ public class CarrosResource {
 	
 	@RequestMapping(method = RequestMethod.GET, value = "tipos/{tipoVeiculo}/{marca}/anos")
 	public List<Integer> allYears(@PathVariable int tipoVeiculo, @PathVariable String marca) {
-		
-		List<Carro> cars = new ArrayList<Carro>();
-		List<Integer> yearsCars = new ArrayList<Integer>();
-		cars = carros.findAll();
-		for (Carro carro : cars) {
-			if ( carro.getMarca().equals(marca) && carro.getTipoVeiculo() == tipoVeiculo)
-				yearsCars.add(carro.getAnoModelo());
-		}
+				
+		String sql = "select anoModelo from Carro  where marca= :marca and tipoVeiculo= :tipoVeiculo";
+		List<Integer> yearsCars = nss.anos(sql, tipoVeiculo, marca);
 		
 		return yearsCars;
 	}
 	
 	//retorna o veículo de acordo com os dados obtidos com os métodos acima
 	@RequestMapping(method = RequestMethod.GET, value = "/tipos/{tipoVeiculo}/{marca}/{ano}")
-	public ResponseEntity<BigDecimal> valueCar( @PathVariable int tipoVeiculo, @PathVariable String marca, @PathVariable int ano) {
+	public BigDecimal valueCar( @PathVariable int tipoVeiculo, @PathVariable String marca, @PathVariable int ano) {
 		
-		List<Carro> cars = carros.findAll();
-		Carro retorno = new Carro();
-		for (Carro carro : cars) {
-			if ( carro.getTipoVeiculo() == tipoVeiculo && carro.getMarca().equals(marca) && carro.getAnoModelo() == ano)
-			{
-				retorno = carro ;
-			}
-		}
-		return ResponseEntity.ok(retorno.getValor());
+		String sql = "select valor from Carro  where marca= :marca and tipoVeiculo= :tipoVeiculo and anoModelo= :anoModelo";
+		
+		BigDecimal valor = nss.valorVeiculo(sql, tipoVeiculo, marca, ano);
+
+		return valor;
 	}
 	
 	@RequestMapping(method = RequestMethod.POST, value = "/comparativo")
 	public List<Carro> comparandoCarros(@RequestBody List<String> valores){
 		
-		
-		List<Carro> cars = carros.findAll();
-		Carro maiorValor = null;
-		Carro menorValor = null;
-		
+		int tipoVeiculo = Integer.parseInt(valores.get(0));
+		String marca = valores.get(1);
+		int anoModelo = Integer.parseInt(valores.get(2));
 		BigDecimal valor = new BigDecimal(valores.get(3));
 		
-		for (Carro carro2 : cars) {
-			
-			if( carro2.getTipoVeiculo() == Integer.parseInt(valores.get(0)) && carro2.getMarca().equals(valores.get(1)) &&
-					carro2.getAnoModelo() == Integer.parseInt(valores.get(2))  )
-			{
-				if( carro2.getValor().compareTo(valor) == 1 || carro2.getValor().compareTo(valor) == 0 ) {
-					maiorValor = carro2;
-				}
-				else if( carro2.getValor().compareTo(valor) == -1 || carro2.getValor().compareTo(valor) == 0   )
-					menorValor = carro2;
-			}
-			
+		
+		String sql = "from Carro where anoModelo= :anoModelo and tipoVeiculo= :tipoVeiculo and "
+				+ " marca= :marca";
+		
+		List<Carro> carros = nss.veiculos(sql, tipoVeiculo, marca, anoModelo);
+		Carro maiorValor = null;
+		Carro menorValor = null;
+		for (Carro carro : carros) {
+			if( carro.getValor().compareTo(valor) == 1 || carro.getValor().compareTo(valor) == 0 )
+				maiorValor = carro;
+			else if( carro.getValor().compareTo(valor) == -1 || carro.getValor().compareTo(valor) == 0)
+				menorValor = carro;
 		}
-		cars.removeAll(cars);
-		cars.add(maiorValor);
-		cars.add(menorValor);
-		return cars;
+		carros= new ArrayList<Carro>();
+		carros.add(maiorValor);
+		carros.add(menorValor);
+		return carros;
 	}
 	
 	

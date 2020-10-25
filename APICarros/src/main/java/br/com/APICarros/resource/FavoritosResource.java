@@ -25,6 +25,7 @@ import br.com.APICarros.model.Favorito;
 import br.com.APICarros.model.User;
 import br.com.APICarros.repository.Favoritos;
 import br.com.APICarros.repository.Users;
+import br.com.APICarros.service.NativeScriptFavoritosService;
 
 @RestController
 @RequestMapping("/favoritos")
@@ -35,6 +36,9 @@ public class FavoritosResource {
 	
 	@Autowired
 	private Users users;
+	
+	@Autowired
+	private NativeScriptFavoritosService nsfs= new NativeScriptFavoritosService();
 	
 		
 	@PostMapping
@@ -47,18 +51,10 @@ public class FavoritosResource {
 	public List<Carro> getFavoritos( @PathVariable Long id){
 		
 		User user = users.getOne(id);
-		List<Favorito> listaFavoritos = favoritos.findAll();
+		String sql = "select c from Favorito f, Carro c where f.user.id= :id and f.carro.id=c.id";
+		List<Carro> carros = nsfs.listaFavorito(user.getId(), sql);		
 		
-		List<Carro> retorno = new ArrayList<Carro>();
-		
-		for (Favorito favorito : listaFavoritos) {
-			if ( favorito.getUser().getId() == user.getId()) {
-				retorno.add(favorito.getCarro());
-			}
-		}
-		
-		
-		return retorno;
+		return carros;
 	}
 	
 	@DeleteMapping("/{id}")
