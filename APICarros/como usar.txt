@@ -1,3 +1,6 @@
+Usei o Mysql 
+nome do Banco api_compare_carro
+
 urls a serem usadas, usei o postman
 
 lista todos os carros
@@ -60,4 +63,11 @@ http://localhost:8080/favoritos/4
 deleta um favorito, manda-se o id do favorito
 http://localhost:8080/favoritos/7
 
+NOTA IMPORTANTE
+Eu sei que a forma que fiz as pesquisas no banco é horrivel, não se deve fazer assim,
+mas como nunca usei o SPRING BOOT tive dificuldade em achar
+como fazer as pesquisas de forma correta. 
+Também tive dificuldade em como nomear os pacotes.
+Estava nomeando "br.com.model", como estava acostumado, o que gerava erro, tem que ser no modelo br.com.NomeDaAplicacao.Model,
+conforme pode ser visto no projeto.
 
